@@ -558,9 +558,14 @@ function updatePositions() {
     window.performance.mark("mark_start_frame");
 
     var scrollTop = document.body.scrollTop / 1250;
-    for (var i = 0; i < movingPizzas.length; i++) {
-        var phase = Math.sin(scrollTop + (i % 5));
-        movingPizzas[i].style.transform = 'translateX(' + 100 * phase + 'px)';
+    var pizzaTranslate = [];
+    for (var i = 0; i < 5; i++) {
+      var phase = Math.sin(scrollTop + i);
+      pizzaTranslate.push('translateX(' + 100 * phase + 'px)');
+    }
+
+    for (var j = 0; j < movingPizzas.length; j++) {
+        movingPizzas[j].style.transform = pizzaTranslate[j % 5];
     }
 
     // User Timing API to the rescue again. Seriously, it's worth learning.
