@@ -419,8 +419,14 @@ var pizzaElementGenerator = function(i) {
     return pizzaContainer;
 };
 
-// resizePizzas(size) is called when the slider in the "Our Pizzas" section of the website moves.
+/* For performance: The rest of this code used querySelector and querySelectorAll to access DOM.
+ * All those have been changed to getElementById or getElementsByClassName.
+ */
+/* For performance: pizzaSize div displays the current pizza size.
+ * The element object is moved to global context to avoid accessing DOM each time resizePizzas gets called.
+ */
 var pizzaSize = document.getElementById("pizzaSize");
+// resizePizzas(size) is called when the slider in the "Our Pizzas" section of the website moves.
 var resizePizzas = function(size) {
     window.performance.mark("mark_start_resize"); // User Timing API function
 
@@ -442,6 +448,24 @@ var resizePizzas = function(size) {
     }
 
     changeSliderLabel(size);
+
+    function sizeSwitcher(size) {
+        switch (size) {
+            case "1":
+                return 0.25;
+            case "2":
+                return 0.3333;
+            case "3":
+                return 0.5;
+            default:
+                console.log("bug in sizeSwitcher");
+        }
+    }
+
+    /*  TODO: the following comment is erroneous. See how the pizza sizes work.
+        This doesn't change the design, i.e. All the pizzas have different withs.
+        However, this leaves a Forced Synchronous Layout warning, and is behind Cam's solution by 0.9ms.
+
 
     /*    // Returns the size difference to change a pizza element from one size to another. Called by changePizzaSlices(size).
         function determineDx(elem, size) {
@@ -470,28 +494,41 @@ var resizePizzas = function(size) {
             return dx;
         }*/
 
-    function sizeSwitcher(size) {
-        switch (size) {
-            case "1":
-                return 0.25;
-            case "2":
-                return 0.3333;
-            case "3":
-                return 0.5;
-            default:
-                console.log("bug in sizeSwitcher");
-        }
-    }
 
-    /*  This doesn't change the design, i.e. All the pizzas have different withs.
-        However, this leaves a Forced Synchronous Layout warning, and is behind Cam's solution by 0.9ms.
-        // Iterates through pizza elements on the page and changes their widths
+    /*    // Returns the size difference to change a pizza element from one size to another. Called by changePizzaSlices(size).
+        function determineDx(elem, size) {
+            var oldwidth = elem.offsetWidth;
+            var windowwidth = document.querySelector("#randomPizzas").offsetWidth;
+            var oldsize = oldwidth / windowwidth;
+
+            // TODO: change to 3 sizes? no more xl?
+            // Changes the slider value to a percent width
+            function sizeSwitcher(size) {
+                switch (size) {
+                    case "1":
+                        return 0.25;
+                    case "2":
+                        return 0.3333;
+                    case "3":
+                        return 0.5;
+                    default:
+                        console.log("bug in sizeSwitcher");
+                }
+            }
+
+            var newsize = sizeSwitcher(size);
+            var dx = (newsize - oldsize) * windowwidth;
+
+            return dx;
+        }*/
+
+    /*  // Iterates through pizza elements on the page and changes their widths
         function changePizzaSizes(size) {
             var newsize = sizeSwitcher(size);
-            var randomPizzasWidth = document.querySelector('#randomPizzas').offsetWidth;
+            var randomPizzasWidth = document.getElementById('#randomPizzas').offsetWidth;
             var newwidth = newsize * randomPizzasWidth + 'px';
 
-            var randomPizzaContainerLength = document.querySelectorAll(".randomPizzaContainer").length;
+            var randomPizzaContainerLength = document.getElementsByClassName(".randomPizzaContainer").length;
 
             for (var i = 0; i < randomPizzaContainerLength; i++) {
                 document.getElementById("pizza" + i).style.width = newwidth;
@@ -503,9 +540,11 @@ var resizePizzas = function(size) {
     function changePizzaSizes(size) {
         var newsize = sizeSwitcher(size) * 100;
 
-        var randomPizzaContainerLength = document.getElementsByClassName("randomPizzaContainer").length;
-
-        for (var i = 0; i < randomPizzaContainerLength; i++) {
+        /* For performance: the newsize could be set with a percentage value.
+         * Then there's no need for calculating another element's with.
+         * randomPizzasNumber was set as a global, saving another DOM accessing procedure.
+         */
+        for (var i = 0; i < randomPizzasNumber; i++) {
             document.getElementById("pizza" + i).style.width = newsize + '%';
         }
     }
@@ -522,8 +561,10 @@ var resizePizzas = function(size) {
 window.performance.mark("mark_start_generating"); // collect timing data
 
 // This for-loop actually creates and appends all of the pizzas when the page loads
+// For performance: there's no need to access this div in every iteration.
 var pizzasDiv = document.getElementById("randomPizzas");
-for (var i = 2; i < 100; i++) {
+var randomPizzasNumber = 100;
+for (var i = 2; i < randomPizzasNumber; i++) {
     pizzasDiv.appendChild(pizzaElementGenerator(i));
 }
 
@@ -551,21 +592,26 @@ function logAverageFrame(times) { // times is the array of User Timing measureme
 // https://www.igvita.com/slides/2012/devtools-tips-and-tricks/jank-demo.html
 
 // Moves the sliding background pizzas based on scroll position
-var movingPizzas = document.getElementsByClassName('mover');
+//var movingPizzasArray = document.getElementsByClassName('mover');
 
 function updatePositions() {
     frame++;
     window.performance.mark("mark_start_frame");
 
     var scrollTop = document.body.scrollTop / 1250;
+    /* For performance: there are only five possible translate properties.
+     * Calculate here to save some scripting time in later for loop.
+     * Translate changes require compositing only, saving layout,
+     * and painting time over style.left.
+     */
     var pizzaTranslate = [];
     for (var i = 0; i < 5; i++) {
       var phase = Math.sin(scrollTop + i);
       pizzaTranslate.push('translateX(' + 100 * phase + 'px)');
     }
 
-    for (var j = 0; j < movingPizzas.length; j++) {
-        movingPizzas[j].style.transform = pizzaTranslate[j % 5];
+    for (var j = 0; j < movingPizzasArray.length; j++) {
+        movingPizzasArray[j].style.transform = pizzaTranslate[j % 5];
     }
 
     // User Timing API to the rescue again. Seriously, it's worth learning.
@@ -582,11 +628,20 @@ function updatePositions() {
 window.addEventListener('scroll', updatePositions);
 
 // Generates the sliding pizzas when the page loads.
+
+/* For performance: this is easier to access than a DOM object,
+ * and will also save the need to access all elements in this class.
+ */
+var movingPizzasArray = [];
 document.addEventListener('DOMContentLoaded', function() {
     var cols = 6;
     var s = 256;
     var rows = Math.floor(window.innerHeight / s) + 1;
     var movingPizzasDiv = document.getElementById("movingPizzas1");
+    /* For performance: use rows to calculate the minimum number of moving pizzas
+     * required for each window size. The gain is biggest in scrolling event, not
+     * here at loading.
+     */
     for (var i = 0; i < cols * rows; i++) {
         var elem = document.createElement('img');
         elem.className = 'mover';
@@ -595,6 +650,7 @@ document.addEventListener('DOMContentLoaded', function() {
         elem.style.width = "73.333px";
         elem.style.left = (i % cols) * s + 'px';
         elem.style.top = (Math.floor(i / cols) * s) + 'px';
+        movingPizzasArray.push(elem);
         movingPizzasDiv.appendChild(elem);
     }
     updatePositions();
