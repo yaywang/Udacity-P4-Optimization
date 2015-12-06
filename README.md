@@ -39,6 +39,6 @@ All unnecessary code was moved out. For instance, new code was written to genera
 
 #### Improvements on the resizing pizzas experience
 
-- The loop through all random pizzas now sets the element size by a percentage value calculated outside, and contains no other calculations.
+The loop through all random pizzas now sets the element size by a percentage value calculated outside, and contains no other calculations.
 
 To check out the improvements in the actual code, see all comments beginning with `For performance`.
