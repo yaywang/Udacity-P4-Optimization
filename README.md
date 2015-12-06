@@ -9,6 +9,13 @@ Run `npm install` to install all required dependencies.
 
 ### Part 1: Optimize PageSpeed Insights score for index.html
 
+**Minify everything**
+
+**Inline all css and js**
+
+Style.css, the Google Font css, and the js code were minified and then inlined at head section. For this site, there's no need to inline in the body section.
+
+**Compress the pizzeria picture**
 
 ### Part 2: Optimize Frames per Second in pizza.html
 
