@@ -1,5 +1,4 @@
-// TODO: figure out ngrok base folder issue
-// TPOD: the pizza page will not be started by browser sync; there's no pizza.html
+// TODO: understanding the synchronousy
 
 var gulp = require('gulp'),
     del = require('del'),
@@ -15,12 +14,11 @@ var gulp = require('gulp'),
 
 var site = '',
     portVal = 8000,
-    pizzaPortVal = 8001;
 
 // Browser-sync configs
 
 gulp.task('index', function() {
-    browserSync.init({
+    return browserSync.init({
         port: portVal,
         open: false,
         server: {
@@ -29,21 +27,12 @@ gulp.task('index', function() {
     });
 });
 
-/*gulp.task('pizza', function() {
-    browserSync.init({
-        port: pizzaPortVal,
-        open: false,
-        server: {
-            baseDir: 'dist/views',
-        }
-    });
-});*/
-
 // All subtasks for printing Google PageSpeed Index scores
 
 gulp.task('ngrok-url', function(cb) {
     return ngrok.connect(portVal, function(err, url) {
         site = url;
+        // TODO: prettify this log.
         console.log('serving your tunnel from: ' + site);
         cb();
     });
@@ -76,7 +65,7 @@ gulp.task('psi-seq', function(cb) {
     );
 });
 
-
+// Print PSI independently
 gulp.task('psi', ['psi-seq'], function() {
     return process.exit();
 });
@@ -127,13 +116,6 @@ gulp.task('open-index', function() {
         }));
 });
 
-gulp.task('open-pizza', function() {
-    return gulp.src('')
-        .pipe(open({
-            uri: 'http://localhost:' + portVal + '/views/pizza.html'
-        }));
-});
-
 gulp.task('open-external-url', function() {
     return gulp.src('')
         .pipe(open({
@@ -141,11 +123,13 @@ gulp.task('open-external-url', function() {
         }));
 });
 
+// TODO: those tasks are running synchronously.
 gulp.task('serve', function() {
     return sequence(
         'build',
-        'psi-seq',
-        ['open-index', 'open-pizza', 'open-external-url']
+        'index',
+        'ngrok-url',
+        ['open-index', 'open-external-url']
     );
 });
 
