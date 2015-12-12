@@ -1,4 +1,4 @@
-// TODO: understanding the synchronousy
+// TODO: understanding the synchronousy issues for gulp tasks
 
 var gulp = require('gulp'),
     del = require('del'),
@@ -13,7 +13,7 @@ var gulp = require('gulp'),
     imageop = require('gulp-image-optimization');
 
 var site = '',
-    portVal = 8000,
+    portVal = 8000;
 
 // Browser-sync configs
 
@@ -103,8 +103,8 @@ gulp.task('clean', function() {
     return del('dist');
 });
 
-gulp.task('build', function() {
-    return sequence('clean', ['contents', 'styles', 'scripts', 'img']);
+gulp.task('build', function(cb) {
+    return sequence('clean', ['contents', 'styles', 'scripts', 'img'], cb);
 });
 
 // Show psi in the terminal, open both index.html and pizza.html in the browser
@@ -124,12 +124,12 @@ gulp.task('open-external-url', function() {
 });
 
 // TODO: those tasks are running synchronously.
-gulp.task('serve', function() {
+gulp.task('serve', ['build'], function(cb) {
     return sequence(
-        'build',
         'index',
         'ngrok-url',
-        ['open-index', 'open-external-url']
+        ['open-index', 'open-external-url'],
+        cb
     );
 });
 
