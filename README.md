@@ -7,9 +7,9 @@
 
 Run `npm install` to install all required node-modules.
 
-Run 'gulp serve' to open both the local site and ngrok-hosted site on your browser.
+Run `gulp serve` to open both the local site and ngrok-hosted site on your browser.
 
-Run 'gulp psi' to see the PageSpeed score for index.html.
+Run `gulp psi` to see the PageSpeed score for index.html.
 
 ## Understanding Performance Improvements
 
