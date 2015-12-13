@@ -7,35 +7,31 @@
 
 Run `npm install` to install all required node-modules.
 
-Run `gulp serve` to open both the local site and ngrok-hosted site on your browser.
+Run `gulp serve` to open both the local site and the ngrok-hosted site in your browser.
 
-Run `gulp psi` to see the PageSpeed score for index.html.
+Run `gulp psi` to perform PageSpeed test for index.html and see results in the terminal.
 
 ## Understanding Performance Improvements
 
 ### Part 1: Optimize PageSpeed Insights score for index.html
 
-- **Minify everything**
+- **Minify everything and compress all pictures with gulp tasks**
 
 - **Inline all css and js**
 
-Style.css, the Google Font css, and the js code were minified and then inlined at head section. For this site, there's no need to inline in the body section.
+Style.css, the Google Font css, and the js code were minified and then inlined at the head section. For this site, there's no need to inline css or js in the body section.
 
-- **Compress the pizzeria picture**
+### Part 2: Optimize Frames per Second for pizza.html
 
-### Part 2: Optimize Frames per Second in pizza.html
+- **Reduce the number of moving pizzas from 200 to around 20**
 
-- **Reduce the number of moving pizzas**
+- **Replace inefficient methods to access the DOM**
 
-The number of moving pizzas was reduced from 200 to around 20.
-
-- **Replace inefficient methods to access DOM**
-
-`querySelector` and `querySelectorAll` were replaced with `getElementById` or `getElementsByClassName`.
+All `querySelector` and `querySelectorAll` were replaced with `getElementById` or `getElementsByClassName`.
 
 - **Optimize for loops**
 
-All unnecessary code was moved out. For instance, new code was written to generate the six possible locations for moving pizzas, so there's no need to calculate location for each moving pizza.
+All unnecessary code was moved outside of the loops. For instance, new code was written to generate the six possible locations for all moving pizzas, so there's no need to compute location for each moving pizza in the loop.
 
 - **Save layout time with `translateX`**
 
@@ -43,6 +39,6 @@ All unnecessary code was moved out. For instance, new code was written to genera
 
 - **Improvements on the resizing pizzas function**
 
-The loop through all random pizzas now sets the element size by a percentage value calculated outside, and contains no other calculations.
+The loop now sets the element size by a percentage value computed outside, and all other functions were moved out.
 
-To check out the improvements in the actual code, see all comments beginning with `For performance`.
+To check out the improvements in the actual views/js/main.js code, look for all comments beginning with `For performance`.
