@@ -31,7 +31,7 @@ All `querySelector` and `querySelectorAll` were replaced with `getElementById` o
 
 - **Optimize for loops**
 
-All unnecessary code was moved outside of the loops. For instance, new code was written to generate the six possible locations for all moving pizzas, so there's no need to compute location for each moving pizza in the loop.
+All unnecessary code was moved outside of the loops. For instance, the pizzaSize div was accessed in the global context.
 
 - **Save layout time with `translateX`**
 
