@@ -524,11 +524,14 @@ function updatePositions() {
     window.performance.mark("mark_start_frame");
 
     var scrollTop = document.body.scrollTop / 1250;
+    // TODO: this is not that good for performance. See why
     /* For performance: there are only five possible translate properties.
      * Calculate here to save some scripting time in later for loop.
      * Translate changes require compositing only, saving layout,
      * and painting time over style.left.
      */
+
+    /*
     var pizzaTranslate = [];
     for (var i = 0; i < 5; i++) {
       var phase = Math.sin(scrollTop + i);
@@ -537,6 +540,12 @@ function updatePositions() {
 
     for (var j = 0; j < movingPizzasArray.length; j++) {
         movingPizzasArray[j].style.transform = pizzaTranslate[j % 5];
+    }
+    */
+
+    for (var i = 0; i < movingPizzasArray.length; i++) {
+        var phase = Math.sin(scrollTop + i % 5);
+        movingPizzasArray[i].style.transform = 'translateX(' + 100 * phase + 'px)';
     }
 
     // User Timing API to the rescue again. Seriously, it's worth learning.
